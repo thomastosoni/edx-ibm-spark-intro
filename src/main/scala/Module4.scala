@@ -1,5 +1,5 @@
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.types.{DoubleType, StringType, StructType}
 
 object Module4 {
@@ -43,6 +43,7 @@ object Module4 {
       .option("inferSchema", "true")
       //      .schema(schema)
       .load("src/main/resources/mtcars.csv")
+      .withColumnRenamed("_c0","name")
       .cache()
 
     sdf.printSchema()
@@ -60,5 +61,19 @@ object Module4 {
       .agg(Map("wt" -> "COUNT"))
       .sort(col("count(wt)").desc)
       .show(5)
+
+    // SparkSQL
+    sdf.createTempView("cars")
+
+    spark.sql("SELECT * FROM cars").show()
+    spark.sql("SELECT mpg FROM cars").show(5)
+    spark.sql("SELECT * FROM cars where mpg>20 AND cyl < 6").show(5)
+    spark.sql("SELECT count(*), cyl from cars GROUP BY cyl").show()
+    spark.sql("SELECT * FROM cars where name like 'Merc%'").show()
+
+    // udf
+    val convertWt = udf((s: Float) => 0.45 * s)
+    spark.udf.register("convert_weight", convertWt)
+    spark.sql("SELECT *, wt AS weight_imperial, convert_weight(wt) as weight_metric FROM cars").show()
   }
 }
