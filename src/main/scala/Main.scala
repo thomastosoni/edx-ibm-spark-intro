@@ -2,6 +2,14 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SparkSession
 
 object Main {
+  def time[R](block: => R): R = {
+    val t0 = System.nanoTime()
+    val result = block
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + (t1 - t0) + " nanoseconds")
+    result
+  }
+
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("Samples").setMaster("local")
     val sc = SparkContext.getOrCreate(conf)
@@ -11,15 +19,10 @@ object Main {
 //      .config("spark.some.config.option", "some-value")
 //      .getOrCreate()
 
-    val data = (1 to 30)
-    val xRangeRDD = sc.parallelize(data)
+    val xRangeRDD = sc.parallelize(1 to 50000, 4)
+    xRangeRDD.cache()
 
-    val subRDD = xRangeRDD.map(_ - 1)
-    val filteredRDD = subRDD.filter(_ < 10)
-
-    println(filteredRDD.collect().mkString("Array(", ", ", ")"))
-    println(filteredRDD.count())
-
-//    spark.stop()
+    time { xRangeRDD.count() }
+    time { xRangeRDD.count() }
   }
 }
