@@ -1,5 +1,5 @@
 object Main {
   def main(args: Array[String]): Unit = {
-    Module4.module4()
+    Module5.module5()
   }
 }
