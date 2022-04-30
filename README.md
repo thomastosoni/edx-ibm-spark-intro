@@ -1,1 +1,1 @@
-# spark-intro
+# spark-edx-intro
