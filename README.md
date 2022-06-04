@@ -1,1 +1,1 @@
-# spark-edx-intro
+# edx-ibm-spark-intro
